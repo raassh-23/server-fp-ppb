@@ -18,6 +18,11 @@ class ImageController extends ApiController
         ];
     }
 
+    public function getBase64($imageName, $image) {
+        $type = pathinfo(public_path($imageName), PATHINFO_EXTENSION);
+        return 'data:image/' . $type . ';base64,' . base64_encode($image);
+    }
+
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -62,14 +67,11 @@ class ImageController extends ApiController
 
         $response = [];
 
-        foreach ($images as $image) {
-            $type = pathinfo(public_path($image), PATHINFO_EXTENSION);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode(Storage::disk('public')->get($image));
-
+        foreach ($images as $imageName) {
             $response[] = $this->makeImageResponse(
-                substr($image, 6),
-                asset('storage/' . $image),
-                $base64
+                substr($imageName, 6),
+                asset('storage/' . $imageName),
+                $this->getBase64($imageName, Storage::disk('public')->get($imageName))
             );
         }
 
@@ -87,14 +89,11 @@ class ImageController extends ApiController
         } catch (\Throwable $th) {
             return $this->sendError('Server Error', $th->getMessage(), 500);
         }
-
-        $type = pathinfo(public_path($imageName), PATHINFO_EXTENSION);
-        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($image);
-
+        
         $response = $this->makeImageResponse(
             $name,
             asset('storage/' . $imageName),
-            $base64
+            $this->getBase64($imageName, $image)
         );
 
         return $this->sendResponse("Gambar berhasil diambil", $response);

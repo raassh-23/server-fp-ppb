@@ -6,9 +6,18 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use phpDocumentor\Reflection\Types\Null_;
 
 class ImageController extends ApiController
 {
+    public function makeImageResponse($name, $link, $base64) {
+        return [
+            'name' => $name,
+            'link' => $link,
+            'base64' => $base64
+        ];
+    }
+
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,30 +43,37 @@ class ImageController extends ApiController
             return $this->sendError('Gagal upload', $th->getMessage(), 500);
         }
 
-        $response = [
-            'name' => $imageName,
-            'link' => asset('storage/' . $imageName),
-            'base64' => $image_64
-        ];
+        $response = $this->makeImageResponse(
+            $imageName,
+            asset('storage/' . $imageName),
+            $image_64
+        );
 
-        return $this->sendResponse("Gambar berhasil tersimpan",);
+        return $this->sendResponse("Gambar berhasil tersimpan", $response);
     }
 
     public function list()
     {
         $images = Storage::disk('public')->files('image');
 
+        if(count($images) == 0) {
+            return $this->sendError('Gambar tidak ditemukan', NULL, 404);
+        }
+
         $response = [];
 
         foreach ($images as $image) {
-            $response[] = [
-                'name' => substr($image, 6),
-                'link' => asset('storage/' . $image),
-                'base64' => base64_encode(Storage::disk('public')->get($image))
-            ];
+            $type = pathinfo(public_path($image), PATHINFO_EXTENSION);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode(Storage::disk('public')->get($image));
+
+            $response[] = $this->makeImageResponse(
+                substr($image, 6),
+                asset('storage/' . $image),
+                $base64
+            );
         }
 
-        return $this->sendResponse($response, 'Berhasil');
+        return $this->sendResponse('Berhasil', $response);
     }
 
     public function getImage($name)
@@ -67,7 +83,7 @@ class ImageController extends ApiController
         try {
             $image = Storage::disk('public')->get($imageName);
         } catch (FileNotFoundException $e) {
-            return $this->sendError('Gambar tidak ditemukan', 404);
+            return $this->sendError('Gambar tidak ditemukan', NULL, 404);
         } catch (\Throwable $th) {
             return $this->sendError('Server Error', $th->getMessage(), 500);
         }
@@ -75,11 +91,11 @@ class ImageController extends ApiController
         $type = pathinfo(public_path($imageName), PATHINFO_EXTENSION);
         $base64 = 'data:image/' . $type . ';base64,' . base64_encode($image);
 
-        $response = [
-            'name' => $name,
-            'link' => asset('storage/' . $name),
-            'base64' => $base64
-        ];
+        $response = $this->makeImageResponse(
+            $name,
+            asset('storage/' . $imageName),
+            $base64
+        );
 
         return $this->sendResponse("Gambar berhasil diambil", $response);
     }

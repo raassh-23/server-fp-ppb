@@ -18,11 +18,6 @@ class ImageController extends ApiController
         ];
     }
 
-    public function getBase64($imageName, $image) {
-        $type = pathinfo(public_path($imageName), PATHINFO_EXTENSION);
-        return 'data:image/' . $type . ';base64,' . base64_encode($image);
-    }
-
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -41,17 +36,17 @@ class ImageController extends ApiController
             $image = str_replace($replace, '', $image_64);
             $image = str_replace(' ', '+', $image);
 
-            $imageName = 'image/' . uniqid('img_', true) . '.' . $extension;
+            $imageName = uniqid('img_', true) . '.' . $extension;
 
-            Storage::disk('public')->put($imageName, base64_decode($image));
+            Storage::disk('public')->put('image/' . $imageName, base64_decode($image));
         } catch (\Throwable $th) {
             return $this->sendError('Gagal upload', $th->getMessage(), 500);
         }
 
         $response = $this->makeImageResponse(
             $imageName,
-            asset('storage/' . $imageName),
-            $image_64
+            asset('storage/image/' . $imageName),
+            $image
         );
 
         return $this->sendResponse("Gambar berhasil tersimpan", $response);
@@ -71,7 +66,7 @@ class ImageController extends ApiController
             $response[] = $this->makeImageResponse(
                 substr($imageName, 6),
                 asset('storage/' . $imageName),
-                $this->getBase64($imageName, Storage::disk('public')->get($imageName))
+                base64_encode(Storage::disk('public')->get($imageName))
             );
         }
 
@@ -93,7 +88,7 @@ class ImageController extends ApiController
         $response = $this->makeImageResponse(
             $name,
             asset('storage/' . $imageName),
-            $this->getBase64($imageName, $image)
+            base64_encode($image)
         );
 
         return $this->sendResponse("Gambar berhasil diambil", $response);

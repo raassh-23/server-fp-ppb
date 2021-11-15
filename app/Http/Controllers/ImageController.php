@@ -43,14 +43,14 @@ class ImageController extends ApiController
 
             $imageName = uniqid('img_', true) . '.' . $extension;
 
-            Storage::disk('public')->put('image/' . $imageName, base64_decode($image));
+            Storage::disk('s3')->put('image/' . $imageName, base64_decode($image));
         } catch (\Throwable $th) {
             return $this->sendError('Gagal upload', $th->getMessage(), 500);
         }
 
         $response = $this->makeImageResponse(
             $imageName,
-            asset('storage/image/' . $imageName)
+            Storage::disk('s3')->url('image/' . $imageName)
         );
 
         return $this->sendResponse("Gambar berhasil tersimpan", $response);
@@ -58,7 +58,7 @@ class ImageController extends ApiController
 
     public function list()
     {
-        $images = Storage::disk('public')->files('image');
+        $images = Storage::disk('s3')->files('image');
 
         if(count($images) == 0) {
             return $this->sendError('Gambar tidak ditemukan', NULL, 404);
@@ -69,7 +69,7 @@ class ImageController extends ApiController
         foreach ($images as $imageName) {
             $response[] = $this->makeImageResponse(
                 substr($imageName, 6),
-                asset('storage/' . $imageName)
+                Storage::disk('s3')->url($imageName)
             );
         }
 
@@ -81,7 +81,7 @@ class ImageController extends ApiController
         $imageName = 'image/' . $name;
 
         try {
-            $image = Storage::disk('public')->get($imageName);
+            $image = Storage::disk('s3')->get($imageName);
         } catch (FileNotFoundException $e) {
             return $this->sendError('Gambar tidak ditemukan', NULL, 404);
         } catch (\Throwable $th) {
@@ -90,7 +90,7 @@ class ImageController extends ApiController
         
         $response = $this->makeImageResponse(
             $name,
-            asset('storage/' . $imageName),
+            Storage::disk('s3')->url($imageName),
             base64_encode($image)
         );
 

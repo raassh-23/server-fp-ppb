@@ -10,12 +10,17 @@ use phpDocumentor\Reflection\Types\Null_;
 
 class ImageController extends ApiController
 {
-    public function makeImageResponse($name, $link, $base64) {
-        return [
+    public function makeImageResponse($name, $link, $base64 = NULL) {
+        $response = [
             'name' => $name,
-            'link' => $link,
-            'base64' => $base64
+            'link' => $link
         ];
+
+        if ($base64 != NULL) {
+            $response['base64'] = $base64;
+        }
+        
+        return $response;
     }
 
     public function upload(Request $request)
@@ -45,8 +50,7 @@ class ImageController extends ApiController
 
         $response = $this->makeImageResponse(
             $imageName,
-            asset('storage/image/' . $imageName),
-            $image
+            asset('storage/image/' . $imageName)
         );
 
         return $this->sendResponse("Gambar berhasil tersimpan", $response);
@@ -65,8 +69,7 @@ class ImageController extends ApiController
         foreach ($images as $imageName) {
             $response[] = $this->makeImageResponse(
                 substr($imageName, 6),
-                asset('storage/' . $imageName),
-                base64_encode(Storage::disk('public')->get($imageName))
+                asset('storage/' . $imageName)
             );
         }
 

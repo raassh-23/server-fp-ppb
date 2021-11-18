@@ -10,7 +10,7 @@ use phpDocumentor\Reflection\Types\Null_;
 
 class ImageController extends ApiController
 {
-    public function makeImageResponse($name, $link, $base64 = NULL) {
+    private function makeImageResponse($name, $link, $base64 = NULL) {
         $response = [
             'name' => $name,
             'link' => $link

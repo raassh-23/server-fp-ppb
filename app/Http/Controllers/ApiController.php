@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class ApiController extends Controller
 {
     private function makeResponse($success, $message, $data = NULL) {
@@ -20,7 +18,6 @@ class ApiController extends Controller
         return $response;
     }
 
-    // Mengirim response berhasil
     public function sendResponse($message, $result = NULL)
     {
     	$response = $this->makeResponse(true, $message, $result);
@@ -28,8 +25,6 @@ class ApiController extends Controller
         return response()->json($response, 200);
     }
 
-
-    // Mengirim response gagal
     public function sendError($error, $errorMessages = NULL, $code = 500)
     {
     	$response = $this->makeResponse(false, $error, $errorMessages);

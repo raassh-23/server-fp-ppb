@@ -6,8 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
-        "alimranahmed/laraocr": "^1.2",
         "fruitcake/laravel-cors": "^2.0",
+        "google/cloud-vision": "^1.5",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.65",
         "laravel/sanctum": "^2.11",

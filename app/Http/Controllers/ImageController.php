@@ -7,6 +7,8 @@ use Google\Cloud\Vision\V1\ImageAnnotatorClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use JoggApp\GoogleTranslate\GoogleTranslate;
+use JoggApp\GoogleTranslate\GoogleTranslateFacade;
 
 class ImageController extends ApiController
 {
@@ -39,6 +41,8 @@ class ImageController extends ApiController
             $response = $annotator->textDetection($content);
             $result = $response->getTextAnnotations()[0]->getDescription();
 
+            $translation = GoogleTranslateFacade::translate($result)["translated_text"];
+
             if ($error = $response->getError()) {
                 return $this->sendError('Gagal membaca', $error->getMessage(), 500);
             }
@@ -46,7 +50,8 @@ class ImageController extends ApiController
             $image = Image::create([
                 'name' => $imageName,
                 'url' => $url,
-                'result' => $result
+                'result' => $result,
+                'translation' => $translation
             ]);
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);

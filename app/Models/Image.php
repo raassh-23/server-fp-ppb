@@ -13,5 +13,6 @@ class Image extends Model
         'name',
         'url',
         'result',
+        'translation',
     ];
 }

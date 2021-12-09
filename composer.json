@@ -10,6 +10,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "google/cloud-vision": "^1.5",
         "guzzlehttp/guzzle": "^7.0.1",
+        "joggapp/laravel-google-translate": "^7.0",
         "laravel/framework": "^8.65",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",

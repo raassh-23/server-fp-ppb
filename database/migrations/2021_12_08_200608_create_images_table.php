@@ -18,6 +18,7 @@ class CreateImagesTable extends Migration
             $table->string('name');
             $table->string('url');
             $table->text('result')->nullable();
+            $table->text('translation')->nullable();
             $table->timestamps();
         });
     }

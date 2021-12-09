@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ext-bcmath": "*",
         "fruitcake/laravel-cors": "^2.0",
         "google/cloud-vision": "^1.5",
         "guzzlehttp/guzzle": "^7.0.1",

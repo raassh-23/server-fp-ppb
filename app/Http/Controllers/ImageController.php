@@ -45,7 +45,7 @@ class ImageController extends ApiController
             $image = Image::create([
                 'name' => $imageName,
                 'url' => $url,
-                // 'result' => $result
+                'result' => $result
             ]);
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);

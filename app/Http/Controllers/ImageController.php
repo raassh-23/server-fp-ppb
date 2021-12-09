@@ -36,7 +36,6 @@ class ImageController extends ApiController
             $annotator = new ImageAnnotatorClient();
             $content = file_get_contents($url);
             $response = $annotator->textDetection($content);
-            
             $result = $response->getTextAnnotations()[0]->getDescription();
 
             if ($error = $response->getError()) {

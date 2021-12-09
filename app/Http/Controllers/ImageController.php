@@ -33,19 +33,19 @@ class ImageController extends ApiController
             Storage::disk('s3')->put('image/' . $imageName, base64_decode($image));
             $url = Storage::disk('s3')->url('image/' . $imageName);
 
-            $annotator = new ImageAnnotatorClient();
-            $content = file_get_contents($url);
-            $response = $annotator->textDetection($content);
-            $result = $response->getTextAnnotations()[0]->getDescription();
+            // $annotator = new ImageAnnotatorClient();
+            // $content = file_get_contents($url);
+            // $response = $annotator->textDetection($content);
+            // $result = $response->getTextAnnotations()[0]->getDescription();
 
-            if ($error = $response->getError()) {
-                return $this->sendError('Gagal membaca', $error->getMessage(), 500);
-            }
+            // if ($error = $response->getError()) {
+            //     return $this->sendError('Gagal membaca', $error->getMessage(), 500);
+            // }
 
             $image = Image::create([
                 'name' => $imageName,
                 'url' => $url,
-                'result' => $result
+                // 'result' => $result
             ]);
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);

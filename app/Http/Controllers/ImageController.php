@@ -60,7 +60,9 @@ class ImageController extends ApiController
                 'language' => $langCode,
             ]);
             
-            $image['available-translation'] = GoogleTranslateFacade::getAvaliableTranslationsFor($langCode);
+            if ($langCode) {
+                $image['available-translation'] = GoogleTranslateFacade::getAvaliableTranslationsFor($langCode);
+            }
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);
         } catch (\Throwable $th) {

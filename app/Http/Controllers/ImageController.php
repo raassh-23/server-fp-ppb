@@ -39,20 +39,27 @@ class ImageController extends ApiController
             $annotator = new ImageAnnotatorClient();
             $content = file_get_contents($url);
             $response = $annotator->textDetection($content);
-            $result = $response->getTextAnnotations()[0]->getDescription();
-
-            $translation = GoogleTranslateFacade::translate($result)["translated_text"];
+            $texts = $response->getTextAnnotations();
 
             if ($error = $response->getError()) {
                 return $this->sendError('Gagal membaca', $error->getMessage(), 500);
             }
+            
+            $image = new Image();
+            $image->name = $imageName;
+            $image->url = $url;
 
-            $image = Image::create([
-                'name' => $imageName,
-                'url' => $url,
-                'result' => $result,
-                'translation' => $translation
-            ]);
+            if(count($texts) > 0) {
+                $result = $response->getTextAnnotations()[0]->getDescription();
+                $translation = GoogleTranslateFacade::translate($result);
+
+                dd($translation);
+
+                $image->result = $result;
+                $image->translation = $translation["translated_text"];
+            }
+
+            $image->save();
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);
         } catch (\Throwable $th) {

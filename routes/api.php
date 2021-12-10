@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\TranslationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/image/upload', [ImageController::class, 'upload']);
 Route::get('/image/list', [ImageController::class, 'list']);
+
+Route::get('/translation/{lang}', [TranslationController::class, 'getAvailableLanguages']);
+Route::post('/translation', [TranslationController::class, 'translate']);

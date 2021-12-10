@@ -7,7 +7,6 @@ use Google\Cloud\Vision\V1\ImageAnnotatorClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use JoggApp\GoogleTranslate\GoogleTranslate;
 use JoggApp\GoogleTranslate\GoogleTranslateFacade;
 
 class ImageController extends ApiController
@@ -15,7 +14,8 @@ class ImageController extends ApiController
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'image' => 'required'
+            'image' => 'required',
+            'translate_to' => 'string',
         ]);
 
         if ($validator->fails()) {
@@ -45,21 +45,22 @@ class ImageController extends ApiController
                 return $this->sendError('Gagal membaca', $error->getMessage(), 500);
             }
             
-            $image = new Image();
-            $image->name = $imageName;
-            $image->url = $url;
+            $result = null;
+            $langCode = null;
 
             if(count($texts) > 0) {
                 $result = $response->getTextAnnotations()[0]->getDescription();
-                $translation = GoogleTranslateFacade::translate($result);
-
-                dd($translation);
-
-                $image->result = $result;
-                $image->translation = $translation["translated_text"];
+                $langCode = GoogleTranslateFacade::detectLanguage($result)['language_code'];
             }
 
-            $image->save();
+            $image = Image::create([
+                'name' => $imageName,
+                'url' => $url,
+                'text' => $result,
+                'language' => $langCode,
+            ]);
+            
+            $image['available-translation'] = GoogleTranslateFacade::getAvaliableTranslationsFor($langCode);
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);
         } catch (\Throwable $th) {

@@ -18,5 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/image/upload', [ImageController::class, 'upload']);
 Route::get('/image/list', [ImageController::class, 'list']);
 
-Route::get('/translation/{lang}', [TranslationController::class, 'getAvailableLanguages']);
+Route::get('/translation/history', [TranslationController::class, 'history']);
+Route::get('/translation/detect', [TranslationController::class, 'detectLanguage']);
+Route::get('/translation/lang/{lang}', [TranslationController::class, 'getAvailableLanguages']);
 Route::post('/translation', [TranslationController::class, 'translate']);

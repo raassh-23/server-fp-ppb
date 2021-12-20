@@ -29,16 +29,16 @@ class ImageController extends ApiController
             $replace = substr($image_64, 0, strpos($image_64, ',') + 1);
             $image = str_replace($replace, '', $image_64);
             $image = str_replace(' ', '+', $image);
+            $imageFile = base64_decode($image);
 
             $imageName = uniqid('img_', true) . '.' . $extension;
 
-            Storage::disk('s3')->put('image/' . $imageName, base64_decode($image));
+            Storage::disk('s3')->put('image/' . $imageName, $imageFile);
 
             $url = Storage::disk('s3')->url('image/' . $imageName);
 
             $annotator = new ImageAnnotatorClient();
-            $content = file_get_contents($url);
-            $response = $annotator->textDetection($content);
+            $response = $annotator->textDetection($imageFile);
             $texts = $response->getTextAnnotations();
 
             if ($error = $response->getError()) {
@@ -59,10 +59,6 @@ class ImageController extends ApiController
                 'text' => $result,
                 'language' => $langCode,
             ]);
-            
-            if ($langCode) {
-                $image['available-translation'] = GoogleTranslateFacade::getAvaliableTranslationsFor($langCode);
-            }
 
             return $this->sendResponse("Gambar berhasil tersimpan", $image);
         } catch (\Throwable $th) {
